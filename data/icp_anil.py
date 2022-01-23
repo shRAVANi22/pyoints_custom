@@ -11,15 +11,12 @@ from pyoints import (
     registration,
     normals,
 )
-pcd = o3d.geometry.PointCloud()
-from mpl_toolkits import mplot3d
+
 import matplotlib.pyplot as plt
-from matplotlib import animation
-from IPython.display import HTML
 
 # get_ipython().run_line_magic('matplotlib', 'inline')
-folder = r'D:\PycharmProjects\pyoints-v0.2.0\pyoints_custom\data'
-
+folder = '..\\data'
+rect_size = (5, 5)
 if not os.path.exists(folder + '\\Merge'):
     os.mkdir(folder + '\\Merge')
 if not os.path.exists(folder + '\\T_Matrix'):
@@ -52,7 +49,7 @@ axes_lims = Extent([
 ])
 colors = {'A': 'green', 'B': 'blue'}
 
-fig = plt.figure(figsize=(15, 15))
+fig = plt.figure(figsize=rect_size)
 ax = plt.axes(projection='3d')
 ax.set_xlim(axes_lims[0], axes_lims[3])
 ax.set_ylim(axes_lims[1], axes_lims[4])
@@ -85,7 +82,7 @@ axes_lims = Extent([
     A.extent().center + 0.5 * A.extent().ranges.max()
 ])
 
-fig = plt.figure(figsize=(15, 15))
+fig = plt.figure(figsize=rect_size)
 ax = plt.axes(projection='3d')
 ax.set_xlim(axes_lims[0], axes_lims[3])
 ax.set_ylim(axes_lims[1], axes_lims[4])
@@ -126,7 +123,7 @@ def registration_gocator():
 
     T_dict, pairs_dict, report = icp(coords_dict)
 
-    fig = plt.figure(figsize=(15, 15))
+    fig = plt.figure(figsize=rect_size)
     ax = plt.axes(projection='3d')
     ax.set_xlim(axes_lims[0], axes_lims[3])
     ax.set_ylim(axes_lims[1], axes_lims[4])
@@ -136,7 +133,7 @@ def registration_gocator():
     ax.set_zlabel('Z')
 
     file_TC = open(folder + "\\T_Matrix\\T_matrix_coarse_"+str(d_th)+".txt", 'w')
-    combine_coords = []
+
 
     for key in coords_dict_fine:
         file_TC.write(str(T_dict[key]) + '\n')
@@ -149,7 +146,7 @@ def registration_gocator():
     plt.show()
 
 
-    fig = plt.figure(figsize=(25, 12))
+    fig = plt.figure(figsize=rect_size)
     plt.xlim(0, len(report['RMSE']) + 1)
     plt.xlabel('Iteration')
     plt.ylabel('RMSE')
@@ -167,7 +164,7 @@ def registration_gocator():
         for key in coords_dict
     }
 
-    # fig = plt.figure(figsize=(15, 15))
+    # fig = plt.figure(figsize=rect_size)
     # ax = plt.axes(projection='3d')
     # ax.set_xlim(axes_lims[0], axes_lims[3])
     # ax.set_ylim(axes_lims[1], axes_lims[4])
@@ -184,7 +181,7 @@ def registration_gocator():
     # plt.show()
 
     ##########################################     FINE     #############################################################
-
+    combine_coords = []
     n_th = np.sin(15 * np.pi / 180)
     radii = [d_th, d_th, d_th, n_th, n_th, n_th]
     nicp = registration.ICP(
@@ -197,7 +194,7 @@ def registration_gocator():
 
     T_dict, pairs_dict, report = nicp(coords_dict, normals_dict)
 
-    fig = plt.figure(figsize=(15, 15))
+    fig = plt.figure(figsize=rect_size)
     ax = plt.axes(projection='3d')
     ax.set_xlim(axes_lims[0], axes_lims[3])
     ax.set_ylim(axes_lims[1], axes_lims[4])
@@ -225,7 +222,7 @@ def registration_gocator():
     plt.title("Fine Registration")
     # plt.show()
 
-    fig = plt.figure(figsize=(25, 12))
+    fig = plt.figure(figsize=rect_size)
     plt.xlim(0, len(report['RMSE']) + 1)
     # for x, y in enumerate(len(report['RMSE']) + 1):
     #     plt.text(x + 0.9, y + .02, str(round(y,3)), color='blue', fontsize=5, rotation='vertical')
@@ -240,9 +237,10 @@ def registration_gocator():
 
     ###########################################     SAVE .pny FILE     #############################################################
     output_ply = folder + '\\Merge\\V_Block_dth_'+str(d_th)+'.ply'
-    pcd = o3d.PointCloud()
-    pcd.points = o3d.Vector3dVector(combine_coords)
-    o3d.write_point_cloud(output_ply, pcd)
+    pcd = o3d.geometry.PointCloud()
+    pcd.points = o3d.utility.Vector3dVector(combine_coords)
+    o3d.io.write_point_cloud(output_ply, pcd)
+
 
 #################################################################################################################################################################################################################
 
